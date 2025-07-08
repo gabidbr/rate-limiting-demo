@@ -1,45 +1,36 @@
 package com.gabidbr.ratelimitingdemo.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 @Component
+@AllArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final Map<String, User> users = new ConcurrentHashMap<>();
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = users.get(username);
-        if (user == null) throw new UsernameNotFoundException("User not found");
-
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                user.getAuthorities()
-        );
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 
     public boolean userExists(String username) {
-        return users.containsKey(username);
+        return userRepository.existsByUsername(username);
     }
 
     public void createUser(String username, String rawPassword) {
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-        users.put(username, new User(username, passwordEncoder.encode(rawPassword), authorities));
+        var user = User.builder()
+                .username(username)
+                .password(passwordEncoder.encode(rawPassword))
+                .build();
+        userRepository.save(user);
     }
 }
 

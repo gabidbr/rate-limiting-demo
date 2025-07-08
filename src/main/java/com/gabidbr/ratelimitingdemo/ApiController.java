@@ -1,18 +1,26 @@
 package com.gabidbr.ratelimitingdemo;
 
-import com.gabidbr.ratelimitingdemo.security.*;
+import com.gabidbr.ratelimitingdemo.security.CustomUserDetailsService;
+import com.gabidbr.ratelimitingdemo.security.JwtUtils;
+import com.gabidbr.ratelimitingdemo.security.LoginRequest;
+import com.gabidbr.ratelimitingdemo.security.RegisterRequest;
+import com.gabidbr.ratelimitingdemo.security.TokenResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class ApiController {
 
     private final JwtUtils jwtUtils;
@@ -27,13 +35,15 @@ public class ApiController {
                         loginRequest.getPassword()
                 )
         );
+        log.info("User {} authenticated successfully", loginRequest.getUsername());
         String token = jwtUtils.generateToken(authentication.getName());
         return new TokenResponse(token);
     }
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest) {
-        if(userDetailsService.userExists(registerRequest.username())) {
+        if (userDetailsService.userExists(registerRequest.username())) {
+            log.warn("User {} already exists", registerRequest.username());
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists");
         }
         userDetailsService.createUser(registerRequest.username(), registerRequest.password());

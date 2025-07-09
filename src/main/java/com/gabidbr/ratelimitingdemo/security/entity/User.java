@@ -1,4 +1,4 @@
-package com.gabidbr.ratelimitingdemo.security;
+package com.gabidbr.ratelimitingdemo.security.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

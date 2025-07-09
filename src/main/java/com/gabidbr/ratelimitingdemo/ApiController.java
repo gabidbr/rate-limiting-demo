@@ -2,9 +2,9 @@ package com.gabidbr.ratelimitingdemo;
 
 import com.gabidbr.ratelimitingdemo.security.CustomUserDetailsService;
 import com.gabidbr.ratelimitingdemo.security.JwtUtils;
-import com.gabidbr.ratelimitingdemo.security.LoginRequest;
-import com.gabidbr.ratelimitingdemo.security.RegisterRequest;
-import com.gabidbr.ratelimitingdemo.security.TokenResponse;
+import com.gabidbr.ratelimitingdemo.security.dto.LoginRequest;
+import com.gabidbr.ratelimitingdemo.security.dto.RegisterRequest;
+import com.gabidbr.ratelimitingdemo.security.dto.TokenResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -37,6 +37,12 @@ public class ApiController {
         );
         log.info("User {} authenticated successfully", loginRequest.getUsername());
         String token = jwtUtils.generateToken(authentication.getName());
+        try {
+            userDetailsService.addLogin(userDetailsService.getUser(loginRequest.getUsername()));
+            log.info("Saved login for user {}", loginRequest.getUsername());
+        } catch (Exception e) {
+            log.error("Failed to save login for user {}: {}", loginRequest.getUsername(), e.getMessage());
+        }
         return new TokenResponse(token);
     }
 

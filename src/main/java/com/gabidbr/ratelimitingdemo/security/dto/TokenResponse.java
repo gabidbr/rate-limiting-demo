@@ -1,4 +1,4 @@
-package com.gabidbr.ratelimitingdemo.security;
+package com.gabidbr.ratelimitingdemo.security.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,5 +1,6 @@
-package com.gabidbr.ratelimitingdemo.security;
+package com.gabidbr.ratelimitingdemo.security.filters;
 
+import com.gabidbr.ratelimitingdemo.security.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

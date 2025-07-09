@@ -1,5 +1,6 @@
 package com.gabidbr.ratelimitingdemo.security;
 
+import com.gabidbr.ratelimitingdemo.security.entity.User;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

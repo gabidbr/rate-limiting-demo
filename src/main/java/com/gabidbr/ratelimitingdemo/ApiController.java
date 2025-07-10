@@ -2,6 +2,8 @@ package com.gabidbr.ratelimitingdemo;
 
 import com.gabidbr.ratelimitingdemo.security.CustomUserDetailsService;
 import com.gabidbr.ratelimitingdemo.security.JwtUtils;
+import com.gabidbr.ratelimitingdemo.security.RegistrationService;
+import com.gabidbr.ratelimitingdemo.security.exception.UserAlreadyExistsException;
 import com.gabidbr.ratelimitingdemo.security.dto.LoginRequest;
 import com.gabidbr.ratelimitingdemo.security.dto.RegisterRequest;
 import com.gabidbr.ratelimitingdemo.security.dto.TokenResponse;
@@ -26,6 +28,7 @@ public class ApiController {
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
+    private final RegistrationService registrationService;
 
     @PostMapping("/login")
     public TokenResponse login(@RequestBody LoginRequest loginRequest) {
@@ -48,11 +51,12 @@ public class ApiController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest) {
-        if (userDetailsService.userExists(registerRequest.username())) {
+        try{
+            registrationService.register(registerRequest.username(), registerRequest.password());
+        }catch (UserAlreadyExistsException e) {
             log.warn("User {} already exists", registerRequest.username());
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists");
         }
-        userDetailsService.createUser(registerRequest.username(), registerRequest.password());
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
     }
 }

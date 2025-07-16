@@ -1,11 +1,8 @@
 package com.gabidbr.ratelimitingdemo.security.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.gabidbr.ratelimitingdemo.model.Expense;
+import com.gabidbr.ratelimitingdemo.model.Subscription;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,6 +33,12 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private String password;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Expense> expenses;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Subscription> subscriptions;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
